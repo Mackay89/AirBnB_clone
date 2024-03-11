@@ -4,10 +4,11 @@ Defines the module for console.
 """
 import cmd
 import re
-import shlex import split
+import shlex
+from shlex import split
 import ast
 from models import storage
-from models.base_models import BaseModel
+from models.base_model import BaseModel
 from models.user import User
 from models.state import State
 from models.city import City
@@ -45,7 +46,7 @@ def split_curly_braces(arg):
                 return id, ""
             try:
                 attr_value = commands[2]
-            exept Exception:
+            except Exception:
                 return id, attr_name
             return f"{id}", f"{attr_name} {attr_value}"
 
@@ -96,19 +97,20 @@ class HBNBCommand(cmd.Cmd):
 
     def do_show(self, arg):
         """
-        show thestring representation of an instance.
+        show the string representation of an instance.
         Usage: show <class_name> <id>
         """
         commands = shlex.split(arg)
 
         if len(commands) == 0:
-            print(commands("** class name missing **")
-        elif commands[0] not in self.valid_classes:
+            print("** class name missing **")
+        if commands[0] not in self.valid_classes:
             print("** class doesn't exist **")
         elif len(commands) < 2:
             print("** instance id missing **")
         else:
             objects = storage.all()
+
 
             key = "{}.{}".format(commands[0], commands[1])
             if key in objects:
@@ -192,12 +194,13 @@ class HBNBCommand(cmd.Cmd):
 
         commands = shlex.split(arg)
 
-        if len(commands == 0:
+
+        if len(commands) == 0:
                 print("** class name missing **")
         elif commands[0] not in self.valid_classes:
             print("** class doesn't exist **")
         elif len(commands) < 2:
-            print("** intance id missing **")
+            print("** instance id missing **")
         else:
             objects = storage.all()
 
@@ -216,7 +219,7 @@ class HBNBCommand(cmd.Cmd):
                     try:
                         str_data = curly_braces.group(1)
 
-                        arg_dict = ast.literal_eva("{" = str_data = "}")
+                        arg_dict = ast.literal_eval("{" + str_data + "}")
 
                         attribute_names = list(arg_dict.keys())
                         attribute_values = list(arg_dict.values())
@@ -275,18 +278,21 @@ class HBNBCommand(cmd.Cmd):
                     print("** class name missing **")
                     return
                 try:
-                    obj_id, arg_dict = split_curly_braces(arg)
-                except Exception
-                    pass
+                    obj_id,arg_dict = split_curly_braces(arg)
+                except Exception as e:
+                    print("Error:", e)
+                    return
                 try:
                     call = method_dict[cmd_met]
                     return call("{} {} {}".format(cls_nm, obj_id, arg_dict))
-                except Exception:
-                    pass
-            else:
-                print("*** Unknown syntax: {}".format(arg))
-                return False
+                except KeyError:
+                    print("** invalid command **")
+                except Exception as e:
+                    print("Error:", e)
+        else:
+            print("*** Unknown syntax: {}".format(arg))
+            return False
 
 
     if __name__ == '__main__':
-        HBNBCommmand().cmdloop()
+        HBNBCommand().cmdloop()
