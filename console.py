@@ -23,7 +23,7 @@ def split_curly_braces(arg):
 
     if curly_braces:
         id_with_comma = shlex.split(arg[:curly_braces.span()[0]])
-        id = [i.strip(",") for i in id_wih_comma][0]
+        id = [i.strip(",") for i in id_with_comma][0]
 
         str_data = curly_braces.group(1)
         try:
@@ -63,7 +63,7 @@ class HBNBCommand(cmd.Cmd):
             "Review",
             "State",
             "City",
-        }
+            }
 
     def emptyline(self):
         """
@@ -290,16 +290,3 @@ class HBNBCommand(cmd.Cmd):
 
     if __name__ == '__main__':
         HBNBCommmand().cmdloop()
-
-
-                            
-
-
-
-
-
-
-
-
-
-

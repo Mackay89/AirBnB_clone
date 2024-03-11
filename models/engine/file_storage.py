@@ -2,6 +2,7 @@
 """
 This module defines the Filestorage class.
 """
+
 import json 
 from models.base_model import BaseModel
 from models.user import User
@@ -11,7 +12,7 @@ from models.amenity import Amenity
 from models.review import Review
 
 
-class Filestorage:
+class FileStorage:
     """
     Represent an abstracted storage engine.
     Attributes:
@@ -26,24 +27,25 @@ class Filestorage:
         """
         Represent the return dictionary _objcts.
         """
-        return FileStorage.__objects
+        return self._objects
 
 
-    def new(self):
+    def new(self, obj):
         """
         Set in _objects obj with key <obj_class_name>.id
         """
+
         ocname = obj.__class__.__name__
-        FileStorage.__objects["{}.{}".format(ocname, obj.id)] = obj
+        self._objects["{}.{}".format(ocname, obj.id)] = obj
 
 
     def save(self):
         """
         Serialize _objects to the JSON file file_path.
         """
-        dict = FileSorage.__objacts
-        objdict = {obj: odict[obj].to_dict() for obj in dict.keys()}
-        with open(FileStorage.__file_path, "w") as f:
+
+        objdict = {key: obj.to_dict() for key, obj in self._objects.items()}
+        with open(self.file_path, "w") as f:
             json.dump(objdict, f)
 
 
@@ -51,12 +53,13 @@ class Filestorage:
         """
         Deserialize the JSON file_path to o__objects, if it exists.
         """
+
         try:
-            with open(FileStorage.file_path) as f:
+            with open(self.file_path) as f:
                 objdict = json.load(f)
-                for o in objdict.values():
-                    cls_name = o["__class__"]
-                    del o["__class__"]
-                    self.new(eval(cls_name)(**o))
+                for obj in objdict.values():
+                    cls_name = obj["__class__"]
+                    del obj["__class__"]
+                    self.new(eval(cls_name)(**obj))
         except FileNotFoundError:
-            return
+            pass

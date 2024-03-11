@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-This module defines the BaseModel class
+This module defines the BaseModel class.
 """
 import models
 from uuid import uuid4
@@ -23,10 +23,10 @@ class BaseModel:
         Initializes anew BaseModel instance.
 
         Args:
-            *args: Unuse.
-            **kwargs: Key/value pair of attributes
+            *args: Unused.
+            **kwargs: Key/value pairs of attributes
         """
-        t_format = "%y-%m-%dT%H:%M:%S.%f"
+        t_format = "%Y-%m-%dT%H:%M:%S.%f"
         self.id = str(uuid4())
         self.created_at = datetime.today()
         self.updated_at = datetime.today()
@@ -37,11 +37,16 @@ class BaseModel:
                 else:
                     setattr(self, key, value)
 
-        else:
-            models.storage.new(self)
-
 
     def save(self):
+        """
+        Update the update_at attribute with the currennt datetime.
+        """
+        self.updated_at = datetime.today()
+        models.storage.save()
+
+
+    def to_dict(self):
         """
         Return the dictionary representation of the BaseModel instance.
 
@@ -51,21 +56,21 @@ class BaseModel:
         return {
             **self.__dict__,
             "created_at": self.created_at.isoformat(),
-            "updated_at": self.update_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
             "__class__": self.__class__.__name__
         }
+
 
     def __str__(self):
         """
         Return the string representation of the BaseModel instance.
 
-
         Return:
             str: String representation of the BaseModel instance.
         """
-        return "[{}] ({}) {}".format{
+        return "[{}] ({}) {}".format(
                 self.__class__.__name__,
                 self.id,
                 self.__dict__
-        }
+                )
 
