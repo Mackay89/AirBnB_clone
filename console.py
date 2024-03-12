@@ -14,6 +14,7 @@ from models.state import State
 from models.city import City
 from models.place import Place
 from models.review import Review
+from models.amenity import Amenity
 
 
 def split_curly_braces(arg):
@@ -37,7 +38,7 @@ def split_curly_braces(arg):
         commands = arg.split(",")
         if commands:
             try:
-                id = command[0]
+                id = commands[0]
             except Exception:
                 return "",""
             try:
@@ -53,23 +54,24 @@ def split_curly_braces(arg):
 
 class HBNBCommand(cmd.Cmd):
     """
-    Defines the HBNBCommand console class.
+    Class define the "entry point of the command interpreter" 
     """
     prompt = "(hbnb)"
-    valid_classes = {
-            "BaseModel",
-            "User",
-            "Amenity",
-            "Place",
-            "Review",
-            "State",
-            "City",
-            }
+    completekey = 'tab'
+    cmdqueue = []
+
+
+    className = {
+            "BaseModel": BaseModel,
+            "User": User,
+            "Amenity": Amenity,
+            "Place": Place,
+            "Review": Review,
+            "State": State,
+            "City": City,
+        }
 
     def emptyline(self):
-        """
-        Do nothing upon receiving an empty line.
-        """
         pass
 
     def do_EOF(self, arg):
@@ -250,17 +252,21 @@ class HBNBCommand(cmd.Cmd):
 
                     obj.save()
 
-    def deefault(self, arg):
+    def default(self, arg):
         """
         Default behavior for cmd module when input is invalid
         """
         arg_list = arg.split('.')
 
-        cls_nm = arg_list[0] # incoming class name
+
+        cls_nm = arg_list[0]
+
 
         command = arg_list[1].split('(')
 
-        cmd_met = command[1].split(')')[0] #extra arguments
+
+        cmd_met = command[0]
+        cmd_met = command[1].split(')')[0]
 
         method_dict = {
                 'all': self.do_all,
@@ -268,17 +274,17 @@ class HBNBCommand(cmd.Cmd):
                 'destroy': self.do_destroy,
                 'update': self.do_update,
                 'count': self.do_count
-                }
+        }
 
         if cmd_met in method_dict.keys():
             if cmd_met != "update":
-                return method_dict[cmd_met]("{} {}".format(cls_nm, e_arg))
+                return method_dict[cmd_met]("{}.{}".format(cls_nm, cmd_arg))
             else:
                 if not cls_nm:
                     print("** class name missing **")
                     return
                 try:
-                    obj_id,arg_dict = split_curly_braces(arg)
+                    obj_id,arg_dict = split_curly_braces(cmd_arg)
                 except Exception as e:
                     print("Error:", e)
                     return
@@ -289,10 +295,14 @@ class HBNBCommand(cmd.Cmd):
                     print("** invalid command **")
                 except Exception as e:
                     print("Error:", e)
-        else:
-            print("*** Unknown syntax: {}".format(arg))
-            return False
 
 
-    if __name__ == '__main__':
+    def __init__(self):
+        pass
+
+
+if __name__ == '__main__':
+    try:
         HBNBCommand().cmdloop()
+    except KeyboardInterrupt:
+        print("\nExiting console.")
